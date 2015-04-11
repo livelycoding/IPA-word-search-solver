@@ -10,12 +10,14 @@
 #include <fstream>
 #include <unordered_set>
 #include <unordered_map>
+#include <queue>
 #include <string>
 #include <vector>
 using namespace std;
 
 
 void buildIPADictionary(unordered_map<string, vector<string> > soundList);
+void addLineToArray(string toAppend);
 
 int main() {
     
@@ -43,191 +45,35 @@ int main() {
         exit(2);
     }
     
+    //build the IPA dictionary
+    
     unordered_map<string, vector<string> > soundList;
+    buildIPADictionary(soundList);
     
-    //declare sound approximations for Standard American English q
-    
-    //consonants
-    soundList["p"].push_back("p");
-    soundList["p"].push_back("pp");
-    
-    soundList["b"].push_back("b");
-    soundList["b"].push_back("bb");
-    
-    soundList["t"].push_back("t");
-    soundList["t"].push_back("tt");
-    
-    soundList["d"].push_back("d");
-    soundList["d"].push_back("dd");
-    
-    soundList["k"].push_back("k");
-    soundList["k"].push_back("ke");
-    soundList["k"].push_back("ck");
-    soundList["k"].push_back("c");
-    soundList["k"].push_back("ch");
-    soundList["k"].push_back("q");
-    
-    soundList["g"].push_back("g");
-    soundList["g"].push_back("gg");
-    
-    //no velar stop: doesn't really ever add to words.
-    
-    soundList["f"].push_back("f");
-    soundList["f"].push_back("gh");
-    soundList["f"].push_back("ff");
-    soundList["f"].push_back("ph");
-    
-    soundList["v"].push_back("v");
-    soundList["v"].push_back("ve");
-    soundList["v"].push_back("f");
-    
-    //voiceless interdental fricative
-    soundList["theta"].push_back("th");
-    
-    //voiced interdental fricative
-    soundList["delta"].push_back("th");
-    soundList["delta"].push_back("the");
-    
-    soundList["s"].push_back("s");
-    soundList["s"].push_back("ss");
-    soundList["s"].push_back("c");
-    
-    soundList["z"].push_back("z");
-    soundList["z"].push_back("s");
-    soundList["z"].push_back("zz");
-    
-    //voiceless alveopalatal fricative
-    soundList["integral"].push_back("sh");
-    soundList["integral"].push_back("s");
-    soundList["integral"].push_back("ss");
-    soundList["integral"].push_back("ti");
-    
-    //voiced alveopalatal fricative
-    soundList["ezh"].push_back("su");
-    soundList["ezh"].push_back("ge");
-    soundList["ezh"].push_back("ti");
-    soundList["ezh"].push_back("zu");
-    
-    soundList["h"].push_back("h");
-    soundList["h"].push_back("wh");
-    
-    //voiceless alveopalatal affricate
-    soundList["t-integral"].push_back("ch");
-    soundList["t-integral"].push_back("t");
-    soundList["t-integral"].push_back("tch");
-    
-    //voiced alveiopalatal affricate
-    soundList["d-ezh"].push_back("j");
-    soundList["d-ezh"].push_back("ge");
-    soundList["d-ezh"].push_back("gi");
-    soundList["d-ezh"].push_back("g");
-    soundList["d-ezh"].push_back("dj");
-    soundList["d-ezh"].push_back("dge");
-    
-    soundList["m"].push_back("m");
-    
-    soundList["n"].push_back("n");
-    
-    //voiced nasal velar
-    soundList["n-hook"].push_back("ng");
-    
-    soundList["l"].push_back("l");
-    soundList["l"].push_back("ll");
-    
-    //voiced alveolar retroflex approximant
-    soundList["r-flipped"].push_back("r");
-
-    //unvoiced bilabial glide
-    soundList["w-flipped"].push_back("wh");
-    
-    //voiced bilabial glide
-    soundList["w"].push_back("w");
-    soundList["w"].push_back("wh");
-    
-    
-    //VOWELS
-    soundList["i"].push_back("i");
-    soundList["i"].push_back("e");
-    soundList["i"].push_back("ea");
-    soundList["i"].push_back("ee");
-    soundList["i"].push_back("ei");
-    soundList["i"].push_back("ie");
-
-    soundList["I"].push_back("i");
-    soundList["I"].push_back("y");
-    soundList["I"].push_back("e");
-    soundList["I"].push_back("o");
-    soundList["I"].push_back("ui");
-    
-    soundList["u"].push_back("u");
-    soundList["u"].push_back("ew");
-    soundList["u"].push_back("o");
-    soundList["u"].push_back("oo");
-    soundList["u"].push_back("ou");
-    soundList["u"].push_back("ue");
-    soundList["u"].push_back("ui");
-    
-    soundList["omega"].push_back("o");
-    soundList["omega"].push_back("oo");
-    soundList["omega"].push_back("ou");
-    soundList["omega"].push_back("u");
-    
-    soundList["e"].push_back("e");
-    soundList["e"].push_back("ea");
-    
-    soundList["epsilon"].push_back("e");
-    
-    soundList["shwa"].push_back("a");
-    soundList["shwa"].push_back("e");
-    soundList["shwa"].push_back("o");
-    soundList["shwa"].push_back("u");
-    
-    soundList["v-flipped"].push_back("u");
-    soundList["v-flipped"].push_back("o");
-    soundList["v-flipped"].push_back("oo");
-    soundList["v-flipped"].push_back("ou");
-    soundList["v-flipped"].push_back("ough");
-    
-    soundList["c-flipped"].push_back("oa");
-    soundList["c-flipped"].push_back("ough");
-    soundList["c-flipped"].push_back("a");
-    soundList["c-flipped"].push_back("aw");
-    soundList["c-flipped"].push_back("au");
-    
-    soundList["o"].push_back("o");
-    soundList["o"].push_back("oa");
-    soundList["o"].push_back("oe");
-    soundList["o"].push_back("ow");
-    soundList["o"].push_back("ou");
-    
-    soundList["ae"].push_back("a");
-    
-    soundList["a"].push_back("a");
-    soundList["a"].push_back("au");
-    soundList["a"].push_back("augh");
-    soundList["a"].push_back("o");
-
-    
-    //basic interface
+    //needed declarations
     
     int n_rows;
     int n_columns;
     int depth;
-    string charactersToParse;
     
-    /*
-    cout << "Welcome to the IPA word search solver!" << endl << endl;
-    cout << "Enter number of rows: ";
-    cin >> n_rows;
-    cout << "Enter number of columns: ";
-    cin >> n_rows;
-     */
+    string** searchArray = nullptr;
+    queue<string> linesInputted;
+    string currentLine;
+    
+    //used for deletion
+    queue<string> emptyQueue;
+
     
     cout << "Welcome to the IPA word search solver!" << endl << endl;
     cout << "Enter maximal word character length to search for: ";
     cin >> depth;
     cin.ignore(10000,'\n');
     cout << endl;
+    if (depth <= 0)
+    {
+        cout << "Invalid depth  ";
+        exit(1);
+    }
     
     bool inputComplete = false;
     
@@ -237,8 +83,8 @@ int main() {
     cout << "Type RESET if you input your result incorrectly or would like to start over." << endl << endl;
     while (inputComplete==false)
     {
-        getline(cin, charactersToParse);
-        if (charactersToParse == "HELP")
+        getline(cin, currentLine);
+        if (currentLine == "HELP")
         {
             cout << "This program is designed around standard english IPA pronunciations." << endl << endl <<
             "Any character with a standard representation with a letter is written with that letter." << endl << endl;
@@ -252,9 +98,9 @@ int main() {
             continue;
         }
         
-        if (charactersToParse == "RESET")
+        if (currentLine == "RESET")
         {
-            charactersToParse = "";
+            linesInputted = emptyQueue;
             cout << "Characters stored deleted." << endl;
             cout << "Type END on a new line when the word search is fully generated." << endl;
             cout << "Type HELP for further instructions on input, if needed" << endl;
@@ -262,7 +108,7 @@ int main() {
             continue;
         }
         
-        if (charactersToParse == "LIST")
+        if (currentLine == "LIST")
         {
             cout << "characters list: " << endl << endl;
             cout << "consonants: " << endl;
@@ -295,13 +141,31 @@ int main() {
             
             "vowels:" << endl <<
             "i I u :omega: e :epsilon: :shwa: :v-flipped: :c-flipped: o :ae: a" << endl << endl;
+        
+            continue;
+        }
+        if (currentLine == "END")
+        {
+            // parse text in the queue to put in a 2D array
+            int columnsInPrevRow = 0;
             
+            //parse until no lines remain
+            while (!linesInputted.empty())
+            {
+                currentLine = linesInputted.front();
+                for (int i = 0; i<currentLine.length();i++)
+                {
+                    
+                }
             
-            
-            
-            
-            
-            
+            }
+        
+        }
+        
+        //store the line in the queue
+        else
+        {
+            linesInputted.push(currentLine);
             continue;
         }
     }
@@ -316,11 +180,7 @@ int main() {
         cout << "Invalid column number ";
         exit(1);
     }
-    if (depth <= 0)
-    {
-        cout << "Invalid depth  ";
-        exit(1);
-    }
+    
     
     
     
