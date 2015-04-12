@@ -99,6 +99,7 @@ int main() {
         
         if (currentLine == "RESET")
         {
+            n_rows = 0;
             linesInputted = emptyQueue;
             cout << "Characters stored deleted." << endl;
             cout << "Type END on a new line when the word search is fully generated." << endl;
@@ -186,7 +187,7 @@ int main() {
                         charCount++;
                         break;
                     case ':':
-                        
+                        i++;
                         //check until you hit the next ':'
                         while (i < currentLine.length())
                         {
@@ -216,7 +217,7 @@ int main() {
             
             n_columns = charCount;
             searchArray = new string*[n_rows];
-            for (int i = 0; i <n_columns; i++)
+            for (int i = 0; i < n_rows; i++)
             {
                 searchArray[i] = new string[n_columns];
             }
@@ -254,38 +255,61 @@ int main() {
                         case 'e':
                         case 'o':
                         case 'a':
+                        {
                             if (charCount == n_columns)
                             {
                                 cout << "Excess characters in row " << n+1;
                                 exit(4);
                             }
                             
+                            searchArray[n][charCount] = currentLine[i];
                             charCount++;
                             break;
+                        }
                         case ':':
+                        {
                             if (charCount == n_columns)
                             {
                                 cout << "Excess characters in row " << n+1;
                                 exit(4);
                             }
                             
-                            //check until you hit the next ':'
+                            i++;
+                            //build the character until you hit the next ':'
+                            string escapedChar;
                             while (i < currentLine.length())
                             {
                                 if (currentLine[i]==':')
                                 {
-                                    charCount++;
-                                    break;
+                                    //check if what was escaped was valid
+                                    if (escapedChar == "theta" || escapedChar == "delta" || escapedChar == "integral" ||
+                                        escapedChar == "ezh" || escapedChar == "t-integral" || escapedChar == "d-ezh" ||
+                                        escapedChar == "n-hook" || escapedChar == "r-flipped" || escapedChar == "w-flipped" ||
+                                        escapedChar == "omega" || escapedChar == "epsilon" || escapedChar == "shwa" ||
+                                        escapedChar == "v-flipped" || escapedChar == "c-flipped" || escapedChar == "theta" ||
+                                        escapedChar == "ae")
+                                    {
+                                        searchArray[n][charCount] = escapedChar;
+                                        charCount++;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        cout << "Invalid escaped character.";
+                                        exit(4);
+                                    }
                                 }
+                                escapedChar += currentLine[i];
                                 i++;
                             }
                             
                             if (i == currentLine.length())
                             {
-                                cout << "Escape missing";
+                                cout << "Escape terminator missing on line " << n+1;
                                 exit(3);
                             }
                             break;
+                        }
                         default:
                         {
                             cout << "Invalid character in search.";
@@ -295,7 +319,7 @@ int main() {
                 }
                 
                 //ensure there are enough letters in the row
-                if (charCount!=n_rows)
+                if (charCount!=n_columns)
                 {
                     cout << "Too few characters in row " << n+1;
                     exit(4);
@@ -329,7 +353,14 @@ int main() {
         exit(1);
     }
     
-    
+    for (int i = 0; i < n_rows; i++)
+    {
+        for (int j = 0; j < n_columns; j++)
+        {
+            cout << searchArray[i][j] << " ";
+        }
+        cout << endl;
+    }
     //clean up allocated grid memory.
     
     for (int i = 0; i <n_columns; i++)
