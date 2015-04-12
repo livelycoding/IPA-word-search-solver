@@ -7,6 +7,7 @@
 //
 
 #include <iostream>
+#include <cctype>
 #include <fstream>
 #include <unordered_set>
 #include <unordered_map>
@@ -52,8 +53,8 @@ int main() {
     
     //needed declarations
     
-    int n_rows;
-    int n_columns;
+    int n_rows = 0;
+    int n_columns = 0;
     int depth;
     
     string** searchArray = nullptr;
@@ -75,13 +76,11 @@ int main() {
         exit(1);
     }
     
-    bool inputComplete = false;
-    
     cout << "Enter characters to be inserted into the wordsearch one row at a time." << endl;
-    cout << "Type END on a new line when the word search is fully generated." << endl;
+    cout << "Type END when the word search is fully generated." << endl;
     cout << "Type HELP for further instructions on input, if needed" << endl;
     cout << "Type RESET if you input your result incorrectly or would like to start over." << endl << endl;
-    while (inputComplete==false)
+    for(;;)
     {
         getline(cin, currentLine);
         if (currentLine == "HELP")
@@ -144,27 +143,176 @@ int main() {
         
             continue;
         }
+        
         if (currentLine == "END")
         {
-            // parse text in the queue to put in a 2D array
-            int columnsInPrevRow = 0;
+            if (linesInputted.empty())
+            {
+                cout << "No lines inputted";
+                exit(2);
+            }
             
-            //parse until no lines remain
-            while (!linesInputted.empty())
+            //count the number of columns we expect for the remainder of execution using line one and generate the grid.
+            //slight code smell to improve usability, we have to do character detection to figure out the character count.
+            currentLine = linesInputted.front();
+            int charCount = 0;
+            for (int i = 0; i<currentLine.length();i++)
+            {
+                switch (currentLine[i])
+                {
+                    case ' ':
+                        continue;
+                    case 'p':
+                    case 'b':
+                    case 't':
+                    case 'd':
+                    case 'k':
+                    case 'g':
+                    case 'f':
+                    case 'v':
+                    case 's':
+                    case 'z':
+                    case 'h':
+                    case 'm':
+                    case 'n':
+                    case 'l':
+                    case 'w':
+                    case 'i':
+                    case 'I':
+                    case 'u':
+                    case 'e':
+                    case 'o':
+                    case 'a':
+                        charCount++;
+                        break;
+                    case ':':
+                        
+                        //check until you hit the next ':'
+                        while (i < currentLine.length())
+                        {
+                            if (currentLine[i]==':')
+                            {
+                                charCount++;
+                                break;
+                            }
+                            i++;
+                        }
+                        
+                        if (i == currentLine.length())
+                        {
+                            cout << "Escape missing";
+                            exit(3);
+                        }
+                        break;
+                    default:
+                    {
+                        cout << "Invalid character in search.";
+                        exit(4);
+                    }
+                }
+            }
+
+            //using the character count, generate the 2D array to be used for the remainder of production.
+            
+            n_columns = charCount;
+            searchArray = new string*[n_rows];
+            for (int i = 0; i <n_columns; i++)
+            {
+                searchArray[i] = new string[n_columns];
+            }
+
+            //loop through all letters given in the queue, and add them to the grid.
+           
+            for (int n=0; n < n_rows; n++)
             {
                 currentLine = linesInputted.front();
+                charCount = 0;
                 for (int i = 0; i<currentLine.length();i++)
                 {
-                    
+                    switch (currentLine[i])
+                    {
+                        case ' ':
+                            continue;
+                        case 'p':
+                        case 'b':
+                        case 't':
+                        case 'd':
+                        case 'k':
+                        case 'g':
+                        case 'f':
+                        case 'v':
+                        case 's':
+                        case 'z':
+                        case 'h':
+                        case 'm':
+                        case 'n':
+                        case 'l':
+                        case 'w':
+                        case 'i':
+                        case 'I':
+                        case 'u':
+                        case 'e':
+                        case 'o':
+                        case 'a':
+                            if (charCount == n_columns)
+                            {
+                                cout << "Excess characters in row " << n+1;
+                                exit(4);
+                            }
+                            
+                            charCount++;
+                            break;
+                        case ':':
+                            if (charCount == n_columns)
+                            {
+                                cout << "Excess characters in row " << n+1;
+                                exit(4);
+                            }
+                            
+                            //check until you hit the next ':'
+                            while (i < currentLine.length())
+                            {
+                                if (currentLine[i]==':')
+                                {
+                                    charCount++;
+                                    break;
+                                }
+                                i++;
+                            }
+                            
+                            if (i == currentLine.length())
+                            {
+                                cout << "Escape missing";
+                                exit(3);
+                            }
+                            break;
+                        default:
+                        {
+                            cout << "Invalid character in search.";
+                            exit(4);
+                        }
+                    }
                 }
-            
+                
+                //ensure there are enough letters in the row
+                if (charCount!=n_rows)
+                {
+                    cout << "Too few characters in row " << n+1;
+                    exit(4);
+                }
+                
+                //remove a line so the next one analyzed is correct.
+                linesInputted.pop();
             }
-        
+            
+            
+            break;
         }
         
         //store the line in the queue
         else
         {
+            n_rows++;
             linesInputted.push(currentLine);
             continue;
         }
@@ -182,10 +330,14 @@ int main() {
     }
     
     
+    //clean up allocated grid memory.
     
+    for (int i = 0; i <n_columns; i++)
+    {
+        delete [] searchArray[i];
+    }
     
-    
-    
+    delete [] searchArray;
     return 0;
 }
 
