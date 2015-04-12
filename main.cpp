@@ -17,8 +17,10 @@
 using namespace std;
 
 
-void buildIPADictionary(unordered_map<string, vector<string> > soundList);
+void buildIPADictionary(unordered_map<string, vector<string> >& soundList);
 void addLineToArray(string toAppend);
+void buildWord(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int currx,
+               int curry,int n_rows,int n_cols, int horzPicked, int vertPicked,  int depth,int maxdepth,string curr_string, string phonemes);
 
 int main() {
     
@@ -353,6 +355,7 @@ int main() {
         exit(1);
     }
     
+    //print wordsearch
     for (int i = 0; i < n_rows; i++)
     {
         for (int j = 0; j < n_columns; j++)
@@ -361,6 +364,20 @@ int main() {
         }
         cout << endl;
     }
+    
+    //find words
+    for (int i = 0; i < n_rows; i++)
+    {
+        for (int j = 0; j < n_columns; j++)
+        {
+            buildWord(searchArray, dictionary, soundList, i,
+                      j, n_rows, n_columns, 0,0, 1, depth, "", searchArray[i][j]);
+        }
+        cout << endl;
+    }
+    
+    
+    
     //clean up allocated grid memory.
     
     for (int i = 0; i <n_columns; i++)
@@ -373,7 +390,7 @@ int main() {
 }
 
 
-void buildIPADictionary(unordered_map<string, vector<string> > soundList)
+void buildIPADictionary(unordered_map<string, vector<string> >& soundList)
 {
     //declare sound approximations for Standard American English q
     
@@ -538,10 +555,68 @@ void buildIPADictionary(unordered_map<string, vector<string> > soundList)
     soundList["a"].push_back("o");
 }
 
-
-
-
-
+//recursively run build word on every letter to find words in english that match
+void buildWord(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int currx,
+               int curry,int n_rows,int n_cols, int horzPicked, int vertPicked, int depth,int maxdepth,string curr_string, string phonemes)
+{
+    {
+        //check for word at the current depth
+        unordered_set<string>::const_iterator word = dictionary.find(curr_string);
+        if (word != dictionary.end())
+            cout << "Potential match for " << phonemes << " : " << curr_string  << "" << endl;
+        
+        //exit if out of bounds
+        if (currx < 0 || currx >=n_cols || curry < 0 || curry >= n_rows)
+            return;
+        
+        //exit if we've hit maximal depth.
+        if (depth>maxdepth)
+            return;
+        
+        //find the sound we're on
+        string currChar = grid[currx][curry];
+        unordered_map <string, vector<string> >::const_iterator sound = sounds.find(currChar);
+        
+        //branch out in all directions if directions are not picked.
+        if (horzPicked == 0 && vertPicked == 0)
+        {
+            //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
+            for (int i = 0; i < sound->second.size(); i++)
+            {
+                //in all eight cardinal directions rereun the function
+                for (int j=-1; j<=1; j++)
+                {
+                    for (int k=-1; k<=1; k++)
+                    {
+                        //don't build words that are out of bounds
+                        if (!(j==k && j == 0) && currx+j>=0 && currx+j<n_cols && curry+k>=0 && curry+k < n_rows)
+                        {
+                            buildWord(grid, dictionary, sounds, currx + j, curry+k, n_rows, n_cols, j, k, depth+1, maxdepth,curr_string+sound->second[i],  phonemes+grid[currx+j][curry+k]);
+                        }
+                    }
+                }
+            }
+        }
+        //go deeper in a fixed direction
+        else
+        {
+            //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
+            for (int i = 0; i < sound->second.size(); i++)
+            {
+                {
+                    if (!(currx + horzPicked == curry + vertPicked && currx + horzPicked == 0)
+                        &&  currx + horzPicked>=0
+                        && currx + horzPicked<n_cols
+                        && curry + vertPicked>=0
+                        && curry + vertPicked < n_rows)
+                    {
+                        buildWord(grid, dictionary, sounds, currx + horzPicked, curry+vertPicked, n_rows, n_cols, horzPicked, vertPicked, depth+1, maxdepth,curr_string+sound->second[i],  phonemes+grid[currx+horzPicked][curry+vertPicked]);
+                    }
+                }
+            }
+        }
+    }
+}
 
 
 
