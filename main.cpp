@@ -121,6 +121,7 @@ int main() {
                 continue;
             }
             linesInputted.pop();
+            n_rows--;
             cout << "Line deleted." << endl;
             continue;
         }
@@ -582,8 +583,12 @@ void branchInDirection(string** grid, const unordered_set<string>& dictionary, c
     
     //check for a word build up till this point.
     unordered_set<string>::const_iterator word = dictionary.find(possibleWord);
-    if (word != dictionary.end())
-        cout << "Potential match for " << phonemes << " : " << possibleWord  << "" << endl;
+    
+    if (possibleWord!="")
+    {
+        if (word != dictionary.end())
+            cout << "Potential match for " << phonemes << " : " << possibleWord  << "" << endl;
+    }
     
     
     //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
