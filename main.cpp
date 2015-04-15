@@ -18,9 +18,12 @@ using namespace std;
 
 
 void buildIPADictionary(unordered_map<string, vector<string> >& soundList);
-void addLineToArray(string toAppend);
-void buildWord(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int currx,
-               int curry,int n_rows,int n_cols, int horzPicked, int vertPicked,  int depth,int maxdepth,string curr_string, string phonemes);
+
+//void buildWord(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int currx,
+//               int curry,int n_rows,int n_cols, int horzPicked, int vertPicked,  int depth,int maxdepth,string curr_string, string phonemes);
+
+void branchOffOf(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int startY,
+                 int startX,int n_rows,int n_cols, int maxdepth);
 
 int main() {
     
@@ -81,7 +84,7 @@ int main() {
     cout << "Enter characters to be inserted into the wordsearch one row at a time." << endl;
     cout << "Type END when the word search is fully generated." << endl;
     cout << "Type HELP for further instructions on input, if needed" << endl;
-    cout << "Type RESET if you input your result incorrectly or would like to start over." << endl << endl;
+    cout << "Type DELETE to remove a single mistyped line and RESET if you would like to fully start over." << endl << endl;
     for(;;)
     {
         getline(cin, currentLine);
@@ -106,7 +109,19 @@ int main() {
             cout << "Characters stored deleted." << endl;
             cout << "Type END on a new line when the word search is fully generated." << endl;
             cout << "Type HELP for further instructions on input, if needed" << endl;
-            cout << "Type RESET if you input your result incorrectly or would like to start over." << endl << endl;
+            cout << "Type DELETE to remove a single mistyped line and RESET if you would like to fully start over." << endl << endl;
+            continue;
+        }
+        
+        if (currentLine == "DELETE")
+        {
+            if (n_rows <= 0)
+            {
+                cout << "Nothing to delete." << endl;
+                continue;
+            }
+            linesInputted.pop();
+            cout << "Line deleted." << endl;
             continue;
         }
         
@@ -370,8 +385,7 @@ int main() {
     {
         for (int j = 0; j < n_columns; j++)
         {
-            buildWord(searchArray, dictionary, soundList, i,
-                      j, n_rows, n_columns, 0,0, 1, depth, "", searchArray[i][j]);
+            branchOffOf(searchArray, dictionary, soundList, i, j, n_rows, n_columns, depth);
         }
         cout << endl;
     }
@@ -557,8 +571,8 @@ void buildIPADictionary(unordered_map<string, vector<string> >& soundList)
 
 
 
-void branchInDirection(string** grid, const unordered_map<string, vector<string> >& sounds, int n_rows, int n_cols, int x, int y,
-                       int dirX, int dirY, int depthLeft)
+void branchInDirection(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds, int n_rows, int n_cols, int x, int y,
+                       int dirX, int dirY, int depthLeft, string phonemes, string possibleWord)
 {
     //stop if max depth hit
     if (depthLeft <= 0)
@@ -566,18 +580,25 @@ void branchInDirection(string** grid, const unordered_map<string, vector<string>
     
     unordered_map <string, vector<string> >::const_iterator sound = sounds.find(grid[y][x]);
     
+    //check for a word build up till this point.
+    unordered_set<string>::const_iterator word = dictionary.find(possibleWord);
+    if (word != dictionary.end())
+        cout << "Potential match for " << phonemes << " : " << possibleWord  << "" << endl;
+    
+    
     //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
     for (int i = 0; i < sound->second.size(); i++)
     {
         if ( (x + dirX >= 0) && (x + dirX < n_cols) && (y + dirY >= 0 && y + dirY < n_rows) )
         {
-            branchInDirection(grid, sounds, n_rows, n_cols, x+dirX, y+dirY, dirX, dirY, depthLeft-1);
+            branchInDirection(grid, dictionary, sounds, n_rows, n_cols, x+dirX, y+dirY, dirX, dirY, depthLeft-1,
+                              possibleWord+sound->second[i],phonemes+grid[y][x]);
         }
     }
 }
 
-void branchOffOf(string** grid, const unordered_map<string, vector<string> >& sounds,  int startY,
-int startX,int n_rows,int n_cols, int maxdepth, string curr_string)
+void branchOffOf(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int startY,
+int startX,int n_rows,int n_cols, int maxdepth)
 {
     unordered_map <string, vector<string> >::const_iterator sound = sounds.find(grid[startY][startX]);
     
@@ -591,14 +612,14 @@ int startX,int n_rows,int n_cols, int maxdepth, string curr_string)
             {
                 if ( (startX + x >= 0) && (startX + x < n_cols) && (startY + y >= 0 && startY + y < n_rows) )
                     {
-                        branchInDirection(grid, sounds, n_rows, n_cols, startX, startY, x, y, maxdepth);
+                        branchInDirection(grid, dictionary, sounds, n_rows, n_cols, startX, startY, x, y, maxdepth,"","");
                     }
             }
         }
     }
 }   
 
-
+/*
 //recursively run build word on every letter to find words in english that match
 void buildWord(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int currx,
                int curry,int n_rows,int n_cols, int horzPicked, int vertPicked, int depth,int maxdepth,string curr_string, string phonemes)
@@ -662,7 +683,7 @@ void buildWord(string** grid, const unordered_set<string>& dictionary, const uno
     }
 }
 
-
+*/
 
 
 
