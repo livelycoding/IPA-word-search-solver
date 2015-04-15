@@ -297,7 +297,7 @@ int main() {
                                     }
                                     else
                                     {
-                                        cout << "Invalid escaped character.";
+                                        cout << "Invalid escaped character on line" << n+1;
                                         exit(4);
                                     }
                                 }
@@ -314,7 +314,7 @@ int main() {
                         }
                         default:
                         {
-                            cout << "Invalid character in search.";
+                            cout << "Invalid character in search on line " << n+1;
                             exit(4);
                         }
                     }
@@ -554,6 +554,50 @@ void buildIPADictionary(unordered_map<string, vector<string> >& soundList)
     soundList["a"].push_back("augh");
     soundList["a"].push_back("o");
 }
+
+
+
+void branchInDirection(string** grid, const unordered_map<string, vector<string> >& sounds, int n_rows, int n_cols, int x, int y,
+                       int dirX, int dirY, int depthLeft)
+{
+    //stop if max depth hit
+    if (depthLeft <= 0)
+        return;
+    
+    unordered_map <string, vector<string> >::const_iterator sound = sounds.find(grid[y][x]);
+    
+    //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
+    for (int i = 0; i < sound->second.size(); i++)
+    {
+        if ( (x + dirX >= 0) && (x + dirX < n_cols) && (y + dirY >= 0 && y + dirY < n_rows) )
+        {
+            branchInDirection(grid, sounds, n_rows, n_cols, x+dirX, y+dirY, dirX, dirY, depthLeft-1);
+        }
+    }
+}
+
+void branchOffOf(string** grid, const unordered_map<string, vector<string> >& sounds,  int startY,
+int startX,int n_rows,int n_cols, int maxdepth, string curr_string)
+{
+    unordered_map <string, vector<string> >::const_iterator sound = sounds.find(grid[startY][startX]);
+    
+    //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
+    for (int i = 0; i < sound->second.size(); i++)
+    {
+        //in all eight cardinal directions rereun the function
+        for (int y=-1; y<=1; y++)
+        {
+            for (int x=-1; x<=1; x++)
+            {
+                if ( (startX + x >= 0) && (startX + x < n_cols) && (startY + y >= 0 && startY + y < n_rows) )
+                    {
+                        branchInDirection(grid, sounds, n_rows, n_cols, startX, startY, x, y, maxdepth);
+                    }
+            }
+        }
+    }
+}   
+
 
 //recursively run build word on every letter to find words in english that match
 void buildWord(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int currx,
