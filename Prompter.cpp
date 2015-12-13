@@ -32,11 +32,27 @@ Prompter::Prompter() {
 }
 
 void Prompter::allowInput() {
-    cout << "AllowInput ran";
+    string input;
+    getline(cin, input);
+    parseInput(input);
 }
 
 void Prompter::parseInput(std::string input){
-    cout << "ParseInput ran";
+    if (input == "HELP") {
+        printHelp();
+        allowInput();
+    }
+    else if (input == "LIST") {
+        printCharacterList();
+        allowInput();
+    }
+    else if (input == "END") {
+        
+    }
+    else {
+        
+    }
+        
 }
 
 void Prompter::saveInput() {

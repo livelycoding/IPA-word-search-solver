@@ -15,6 +15,7 @@
 #include <string>
 #include <vector>
 #include "Prompter.h"
+#include "WordSearch.h"
 using namespace std;
 
 
@@ -26,7 +27,8 @@ void branchOffOf(string** grid, const unordered_set<string>& dictionary, const u
 
 int main() {
     //DEBUG
-    Prompter as;
+    Prompter prompt;
+    WordSearch search;
     
     
     //build english dictionary in c++
