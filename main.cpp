@@ -14,25 +14,27 @@
 #include <queue>
 #include <string>
 #include <vector>
+#include "Prompter.h"
 using namespace std;
 
 
 void buildIPADictionary(unordered_map<string, vector<string> >& soundList);
 
-//void buildWord(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int currx,
-//               int curry,int n_rows,int n_cols, int horzPicked, int vertPicked,  int depth,int maxdepth,string curr_string, string phonemes);
 
 void branchOffOf(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int startY,
                  int startX,int n_rows,int n_cols, int maxdepth);
 
 int main() {
+    //DEBUG
+    Prompter as;
+    
     
     //build english dictionary in c++
     
     unordered_set<string> dictionary;
     
     ifstream dictFile;
-    dictFile.open("words.txt");
+    dictFile.open("./words/words.txt");
     if (dictFile.is_open())
     {
         string currentWord;
@@ -47,7 +49,7 @@ int main() {
     }
     else
     {
-        cout << "The dictionary could not be loaded";
+        cout << "The dictionary could not be loaded\n";
         exit(2);
     }
     
@@ -68,7 +70,7 @@ int main() {
     
     //used for deletion
     queue<string> emptyQueue;
-
+    
     
     cout << "Welcome to the IPA word search solver!" << endl << endl;
     cout << "Enter maximal word character length to search for: ";
@@ -90,11 +92,11 @@ int main() {
         getline(cin, currentLine);
         if (currentLine == "HELP")
         {
-            cout << "This program is designed around standard english IPA pronunciations." << endl << endl <<
+            cout << "This program is designed around standard english IPA pronunciations as defined by University of Arizona at the following link:\n http://ic-migration.webhost.uits.arizona.edu/icfiles/ic/lsp/site/IPA/SSAE.html " << endl << endl <<
             "Any character with a standard representation with a letter is written with that letter." << endl << endl;
             cout << "for nonstandard character such as the schwa, enter the escape character :, type an approximate " <<
             "description of the character, then another :. For example tS, the unvoiced alveopalatal fricative," <<
-            "is written :t-integral: ." << endl <<endl;
+            "is written :t-integral:" << endl <<endl;
             cout << "Any character which appears to be another character flipped or rotated is" << endl;
             cout << "written as :r-flipped: (voiced alveolar retroflex approximant)." << endl << endl;
             cout << "For a full list of such commands, type LIST." << endl;
@@ -132,7 +134,7 @@ int main() {
             cout << "consonants: " << endl;
             
             cout << "p b t d k g f v"  << endl <<
-            
+             
             ":theta:" << "- voiceless interdental fricative" << endl <<
             ":delta:" << "- voiced interdental fricative" << endl <<
             
@@ -142,7 +144,7 @@ int main() {
             ":ezh:" << "- voiced alveopalatal fricative" << endl <<
             
             "h"  << endl <<
-
+            
             ":t-integral:" << "- voiceless alveopalatal affricate" << endl <<
             ":d-ezh:" << "- voiced alveopalatal affricate" << endl <<
             
@@ -159,7 +161,7 @@ int main() {
             
             "vowels:" << endl <<
             "i I u :omega: e :epsilon: :shwa: :v-flipped: :c-flipped: o :ae: a" << endl << endl;
-        
+            
             continue;
         }
         
@@ -230,7 +232,7 @@ int main() {
                     }
                 }
             }
-
+            
             //using the character count, generate the 2D array to be used for the remainder of production.
             
             n_columns = charCount;
@@ -239,9 +241,9 @@ int main() {
             {
                 searchArray[i] = new string[n_columns];
             }
-
+            
             //loop through all letters given in the queue, and add them to the grid.
-           
+            
             for (int n=0; n < n_rows; n++)
             {
                 currentLine = linesInputted.front();
@@ -603,7 +605,7 @@ void branchInDirection(string** grid, const unordered_set<string>& dictionary, c
 }
 
 void branchOffOf(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int startY,
-int startX,int n_rows,int n_cols, int maxdepth)
+                 int startX,int n_rows,int n_cols, int maxdepth)
 {
     unordered_map <string, vector<string> >::const_iterator sound = sounds.find(grid[startY][startX]);
     
@@ -616,79 +618,79 @@ int startX,int n_rows,int n_cols, int maxdepth)
             for (int x=-1; x<=1; x++)
             {
                 if ( (startX + x >= 0) && (startX + x < n_cols) && (startY + y >= 0 && startY + y < n_rows) )
-                    {
-                        branchInDirection(grid, dictionary, sounds, n_rows, n_cols, startX, startY, x, y, maxdepth,"","");
-                    }
-            }
-        }
-    }
-}   
-
-/*
-//recursively run build word on every letter to find words in english that match
-void buildWord(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int currx,
-               int curry,int n_rows,int n_cols, int horzPicked, int vertPicked, int depth,int maxdepth,string curr_string, string phonemes)
-{
-    {
-        //check for word at the current depth
-        unordered_set<string>::const_iterator word = dictionary.find(curr_string);
-        if (word != dictionary.end())
-            cout << "Potential match for " << phonemes << " : " << curr_string  << "" << endl;
-        
-        //exit if out of bounds
-        if (currx < 0 || currx >=n_cols || curry < 0 || curry >= n_rows)
-            return;
-        
-        //exit if we've hit maximal depth.
-        if (depth>maxdepth)
-            return;
-        
-        //find the sound we're on
-        string currChar = grid[currx][curry];
-        unordered_map <string, vector<string> >::const_iterator sound = sounds.find(currChar);
-        
-        //branch out in all directions if directions are not picked.
-        if (horzPicked == 0 && vertPicked == 0)
-        {
-            //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
-            for (int i = 0; i < sound->second.size(); i++)
-            {
-                //in all eight cardinal directions rereun the function
-                for (int j=-1; j<=1; j++)
                 {
-                    for (int k=-1; k<=1; k++)
-                    {
-                        //don't build words that are out of bounds
-                        if (!(j==k && j == 0) && currx+j>=0 && currx+j<n_cols && curry+k>=0 && curry+k < n_rows)
-                        {
-                            buildWord(grid, dictionary, sounds, currx + j, curry+k, n_rows, n_cols, j, k, depth+1, maxdepth,curr_string+sound->second[i],  phonemes+grid[currx+j][curry+k]);
-                        }
-                    }
-                }
-            }
-        }
-        //go deeper in a fixed direction
-        else
-        {
-            //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
-            for (int i = 0; i < sound->second.size(); i++)
-            {
-                {
-                    if (!(currx + horzPicked == curry + vertPicked && currx + horzPicked == 0)
-                        &&  currx + horzPicked>=0
-                        && currx + horzPicked<n_cols
-                        && curry + vertPicked>=0
-                        && curry + vertPicked < n_rows)
-                    {
-                        buildWord(grid, dictionary, sounds, currx + horzPicked, curry+vertPicked, n_rows, n_cols, horzPicked, vertPicked, depth+1, maxdepth,curr_string+sound->second[i],  phonemes+grid[currx+horzPicked][curry+vertPicked]);
-                    }
+                    branchInDirection(grid, dictionary, sounds, n_rows, n_cols, startX, startY, x, y, maxdepth,"","");
                 }
             }
         }
     }
 }
 
-*/
+/*
+ //recursively run build word on every letter to find words in english that match
+ void buildWord(string** grid, const unordered_set<string>& dictionary, const unordered_map<string, vector<string> >& sounds,  int currx,
+ int curry,int n_rows,int n_cols, int horzPicked, int vertPicked, int depth,int maxdepth,string curr_string, string phonemes)
+ {
+ {
+ //check for word at the current depth
+ unordered_set<string>::const_iterator word = dictionary.find(curr_string);
+ if (word != dictionary.end())
+ cout << "Potential match for " << phonemes << " : " << curr_string  << "" << endl;
+ 
+ //exit if out of bounds
+ if (currx < 0 || currx >=n_cols || curry < 0 || curry >= n_rows)
+ return;
+ 
+ //exit if we've hit maximal depth.
+ if (depth>maxdepth)
+ return;
+ 
+ //find the sound we're on
+ string currChar = grid[currx][curry];
+ unordered_map <string, vector<string> >::const_iterator sound = sounds.find(currChar);
+ 
+ //branch out in all directions if directions are not picked.
+ if (horzPicked == 0 && vertPicked == 0)
+ {
+ //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
+ for (int i = 0; i < sound->second.size(); i++)
+ {
+ //in all eight cardinal directions rereun the function
+ for (int j=-1; j<=1; j++)
+ {
+ for (int k=-1; k<=1; k++)
+ {
+ //don't build words that are out of bounds
+ if (!(j==k && j == 0) && currx+j>=0 && currx+j<n_cols && curry+k>=0 && curry+k < n_rows)
+ {
+ buildWord(grid, dictionary, sounds, currx + j, curry+k, n_rows, n_cols, j, k, depth+1, maxdepth,curr_string+sound->second[i],  phonemes+grid[currx+j][curry+k]);
+ }
+ }
+ }
+ }
+ }
+ //go deeper in a fixed direction
+ else
+ {
+ //for every case of the consonant we're currently on, append the current sound to the string and try it in all directions.
+ for (int i = 0; i < sound->second.size(); i++)
+ {
+ {
+ if (!(currx + horzPicked == curry + vertPicked && currx + horzPicked == 0)
+ &&  currx + horzPicked>=0
+ && currx + horzPicked<n_cols
+ && curry + vertPicked>=0
+ && curry + vertPicked < n_rows)
+ {
+ buildWord(grid, dictionary, sounds, currx + horzPicked, curry+vertPicked, n_rows, n_cols, horzPicked, vertPicked, depth+1, maxdepth,curr_string+sound->second[i],  phonemes+grid[currx+horzPicked][curry+vertPicked]);
+ }
+ }
+ }
+ }
+ }
+ }
+ 
+ */
 
 
 
@@ -711,60 +713,60 @@ void buildWord(string** grid, const unordered_set<string>& dictionary, const uno
 
 //RECURSIVE GENERATION
 /*
-void buildWord(currx, curry,boundx,boundy,depth,maxdepth,curr_string)
-{
-
-//exit if out of bounds
-if (currx < 0 || currx > boundx || curry < 0 || curry > boundy)
-    return;
+ void buildWord(currx, curry,boundx,boundy,depth,maxdepth,curr_string)
+ {
  
-//exit if we've hit maximal depth.
+ //exit if out of bounds
+ if (currx < 0 || currx > boundx || curry < 0 || curry > boundy)
+ return;
+ 
+ //exit if we've hit maximal depth.
  if (depth>maxdepth)
-    return;
+ return;
  
-//for every case of the consonant we're currently on, append the current sound to the string
+ //for every case of the consonant we're currently on, append the current sound to the string
  for (int i = 0; i <
  
  
  
-//if we're on the right x and y, we're done
-if (currx =
-
-
-}
-
-*/
+ //if we're on the right x and y, we're done
+ if (currx =
+ 
+ 
+ }
+ 
+ */
 
 
 /*
-
-Workflow:
  
--Load an english dictionary into a hash table.
-
--create an unordered map of characters representing IPA sounds associated with a vector of possible letter combinations. Populate these vectors.
-
--Ask for number of rows and columns, n & m. Abort on negatives or 0.
-
--Ask for a raw string of text representing all characters left to right. :: encloses IPA symbols without english equivalents.
-
--Generate a 2D array of strings using this data. Abort if fed a nonIPA symbol with an error message of what broke it.
-
--Ask for a start character and an end character, S and E. Also ask for a max world length to check for, WL. Abort on two.
+ Workflow:
  
--Create a hash table for found words.
--Create a vector for current word attempts.
--create a current word length
+ -Load an english dictionary into a hash table.
  
--Go through all characters till you hit the end character:
-
--Have we hit the Wordlength cap? If so, move on to the next letter.
+ -create an unordered map of characters representing IPA sounds associated with a vector of possible letter combinations. Populate these vectors.
+ 
+ -Ask for number of rows and columns, n & m. Abort on negatives or 0.
+ 
+ -Ask for a raw string of text representing all characters left to right. :: encloses IPA symbols without english equivalents.
+ 
+ -Generate a 2D array of strings using this data. Abort if fed a nonIPA symbol with an error message of what broke it.
+ 
+ -Ask for a start character and an end character, S and E. Also ask for a max world length to check for, WL. Abort on two.
+ 
+ -Create a hash table for found words.
+ -Create a vector for current word attempts.
+ -create a current word length
+ 
+ -Go through all characters till you hit the end character:
+ 
+ -Have we hit the Wordlength cap? If so, move on to the next letter.
  
  OTHERWISE
--check if current word length in a directions is on or off the chart, starting at top and going clockwise
--if it is on the chart, starting on the present character, create a vector
--Repeat this for the current character until we hit the wordlength cap:
--Check if there's a character (currentlength)
--
+ -check if current word length in a directions is on or off the chart, starting at top and going clockwise
+ -if it is on the chart, starting on the present character, create a vector
+ -Repeat this for the current character until we hit the wordlength cap:
+ -Check if there's a character (currentlength)
+ -
  
-*/
+ */
