@@ -22,8 +22,110 @@ void WordSearch::storeLine(string line) {
 }
 
 int generateWordSearch() {
-    cout << "getLineWidth called";
-    return 0;
+    for (int n=0; n < n_rows; n++)
+    {
+        currentLine = linesInputted.front();
+        charCount = 0;
+        for (int i = 0; i<currentLine.length();i++)
+        {
+            switch (currentLine[i])
+            {
+                case ' ':
+                    continue;
+                case 'p':
+                case 'b':
+                case 't':
+                case 'd':
+                case 'k':
+                case 'g':
+                case 'f':
+                case 'v':
+                case 's':
+                case 'z':
+                case 'h':
+                case 'm':
+                case 'n':
+                case 'l':
+                case 'w':
+                case 'i':
+                case 'I':
+                case 'u':
+                case 'e':
+                case 'o':
+                case 'a':
+                {
+                    if (charCount == n_columns)
+                    {
+                        cout << "Excess characters in row " << n+1;
+                        exit(4);
+                    }
+                    
+                    searchArray[n][charCount] = currentLine[i];
+                    charCount++;
+                    break;
+                }
+                case ':':
+                {
+                    if (charCount == n_columns)
+                    {
+                        cout << "Excess characters in row " << n+1;
+                        exit(4);
+                    }
+                    
+                    i++;
+                    //build the character until you hit the next ':'
+                    string escapedChar;
+                    while (i < currentLine.length())
+                    {
+                        if (currentLine[i]==':')
+                        {
+                            //check if what was escaped was valid
+                            if (escapedChar == "theta" || escapedChar == "delta" || escapedChar == "integral" ||
+                                escapedChar == "ezh" || escapedChar == "t-integral" || escapedChar == "d-ezh" ||
+                                escapedChar == "n-hook" || escapedChar == "r-flipped" || escapedChar == "w-flipped" ||
+                                escapedChar == "omega" || escapedChar == "epsilon" || escapedChar == "shwa" ||
+                                escapedChar == "v-flipped" || escapedChar == "c-flipped" || escapedChar == "theta" ||
+                                escapedChar == "ae")
+                            {
+                                searchArray[n][charCount] = escapedChar;
+                                charCount++;
+                                break;
+                            }
+                            else
+                            {
+                                cout << "Invalid escaped character on line" << n+1;
+                                exit(4);
+                            }
+                        }
+                        escapedChar += currentLine[i];
+                        i++;
+                    }
+                    
+                    if (i == currentLine.length())
+                    {
+                        cout << "Escape terminator missing on line " << n+1;
+                        exit(3);
+                    }
+                    break;
+                }
+                default:
+                {
+                    cout << "Invalid character in search on line " << n+1;
+                    exit(4);
+                }
+            }
+        }
+        
+        //ensure there are enough letters in the row
+        if (charCount!=n_columns)
+        {
+            cout << "Too few characters in row " << n+1;
+            exit(4);
+        }
+        
+        //remove a line so the next one analyzed is correct.
+        linesInputted.pop();
+    }
 }
 
 int WordSearch::setLineWidth() {

@@ -18,6 +18,7 @@ public:
     WordSearch();
     void storeLine(std::string line);
     int generateWordSearch();
+    void searchForWords();
 private:
     int getLineWidth();
     int setLineWidth();
