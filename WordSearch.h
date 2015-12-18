@@ -20,7 +20,7 @@ public:
     int generateWordSearch();
     void searchForWords();
 private:
-    int getLineWidth();
+    int getLineWidth(std::string line);
     int setLineWidth();
     int n_rows_;
     int n_columns_;

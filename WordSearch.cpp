@@ -22,6 +22,35 @@ void WordSearch::storeLine(string line) {
 }
 
 int generateWordSearch() {
+    //big idea:
+    //Loop through lines,
+    
+    /*
+    
+    
+    
+    n_columns = charCount;
+    searchArray = new string*[n_rows];
+    for (int i = 0; i < n_rows; i++)
+    {
+        searchArray[i] = new string[n_columns];
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     for (int n=0; n < n_rows; n++)
     {
         currentLine = linesInputted.front();
@@ -126,10 +155,40 @@ int generateWordSearch() {
         //remove a line so the next one analyzed is correct.
         linesInputted.pop();
     }
+     */
+    return 0;
 }
 
-int WordSearch::setLineWidth() {
-    cout << "setLineWidth called";
-    return 0;
+int WordSearch::getLineWidth(string line) {
+    //checks the width of line.
+    //This function assumes valid input.
+    int count=0;
+    
+    bool inEscape = false;
+    if (line == "")
+        return 0;
+    
+    //ignore spaces, count concluded escaped characters, count all other characters
+    for (int i=0;i<=line.length();i++) {
+        switch (line[i]) {
+            case ' ':
+                continue;
+            case ':':
+                inEscape= !inEscape;
+                if (inEscape==false)
+                    count++;
+                continue;
+            default:
+                if (inEscape==false)
+                {
+                    count++;
+                    continue;
+                }
+                else
+                    continue;
+        }
+    }
+    
+    return count;
 }
 
