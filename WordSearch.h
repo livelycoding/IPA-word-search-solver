@@ -10,24 +10,35 @@
 #define wordSearch_h
 #include <string>
 #include <queue>
-
+#include <unordered_set>
+#include <unordered_map>
 
 
 class WordSearch {
 public:
     WordSearch();
     void storeLine(std::string line);
-    int generateWordSearch();
     void searchForWords();
+    int generateWordSearch();
 private:
     int getLineWidth(std::string line);
-    int setLineWidth();
+    void removeTopLine();
+    void buildIPADictionary();
+    
     int n_rows_;
     int n_columns_;
     int depth_;
     int line_width_;
     std::string** search_array_;
     std::queue<std::string> lines_inputted_;
+    std::unordered_set<std::string> validIPACharacters;
+    std::unordered_map<std::string, std::vector<std::string> > soundList;
+    
+    
+    //inlines
+    inline void setLineWidth(int newLength) {
+        line_width_ = newLength;
+    }
 };
 
 

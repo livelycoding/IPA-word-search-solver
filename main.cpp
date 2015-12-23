@@ -27,8 +27,8 @@ void branchOffOf(string** grid, const unordered_set<string>& dictionary, const u
 
 int main() {
     //DEBUG
-    Prompter prompt;
-    WordSearch search;
+    //Prompter prompt;
+    //WordSearch search;
     
     
     //build english dictionary in c++
