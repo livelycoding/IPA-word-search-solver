@@ -102,7 +102,7 @@ void Prompter::printCharacterList() {
     cout << "l" << endl;
     cout << ":r-flipped:" << "- voiced alveolar retroflex approximant" << endl;
     cout << ":w-flipped:" << "- unvoiced bilabial glide" << endl;
-    cout << "w" << endl << endl;
+    cout << "w j" << endl << endl;
     cout << "vowels:" << endl;
     cout << "i I u :omega: e :epsilon: :shwa: :v-flipped: :c-flipped: o :ae: a" << endl << endl;
 }

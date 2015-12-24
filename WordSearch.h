@@ -23,7 +23,8 @@ public:
 private:
     int getLineWidth(std::string line);
     void removeTopLine();
-    void buildIPADictionary();
+    void buildIPACharacterList();
+    void buildIPAToSoundsList();
     
     int n_rows_;
     int n_columns_;
@@ -31,8 +32,8 @@ private:
     int line_width_;
     std::string** search_array_;
     std::queue<std::string> lines_inputted_;
-    std::unordered_set<std::string> validIPACharacters;
-    std::unordered_map<std::string, std::vector<std::string> > soundList;
+    std::unordered_set<std::string> IPA_characters_;
+    std::unordered_map<std::string, std::vector<std::string> > IPA_sounds_;
     
     
     //inlines

@@ -510,6 +510,8 @@ void buildIPADictionary(unordered_map<string, vector<string> >& soundList)
     soundList["w"].push_back("w");
     soundList["w"].push_back("wh");
     
+    //voiced palatal glide
+    soundList["j"].push_back("y");
     
     //VOWELS
     soundList["i"].push_back("i");
