@@ -55,6 +55,12 @@ int WordSearch::generateWordSearch() {
          
          */
     
+    //Exit if the queue is empty
+    if (n_rows_<=0) {
+        cout << "Error: No lines given.";
+        return 4;
+    }
+    
     //initialize rows of string arrays
     search_array_ = new string*[n_rows_];
     
@@ -63,41 +69,124 @@ int WordSearch::generateWordSearch() {
         search_array_[i] = new string[n_columns_];
     }
     
+    //loop through the rows and insert things into their correct column
+    for (int i=0; i<n_rows_;i++) {
+        string current_row = lines_inputted_.front();
+        lines_inputted_.pop();
+        //handleLine(current_row);
+    }
+    
+    
     return 0;
 }
 
-int WordSearch::getLineWidth(string line) {
-    //checks the width of line.
-    //This function assumes validly formed input.
+void WordSearch::handleLine(string line, int row, int& expectedLength) {
+    //handles a line by counting the number of characters in it while saving it into the search.
+    //breaks if the number of characters is wrong
+    //if expected length is -1, changes the expected length to the count. Otherwise, uses it to check the result.
     int count=0;
-    
     bool inEscape = false;
-    if (line == "")
-        return 0;
     
-    //ignore spaces, count concluded escaped characters, count all other characters
-    for (int i=0;i<=line.length();i++) {
+    string buildingString;
+    
+    if (line == "") {
+        cout << "Empty line";
+        exit(4);
+    }
+    
+    for (int i=0;i<line.length();i++) {
         switch (line[i]) {
+            //ignore whitespace
             case ' ':
                 continue;
             case ':':
+                //Exit running escapes if inside, enter one if not
                 inEscape= !inEscape;
-                if (inEscape==false)
-                    count++;
-                continue;
-            default:
-                if (inEscape==false)
-                {
+                
+                //if we just exited an escape, We've completed a new character. Add to count and append the running character
+                if (inEscape==false) {
+                    
+                    //ensure count validity then append the character if it is valid
+                    checkCountValid(count, row, expectedLength);
+                    checkIfIpa(count, row, buildingString);
+                    
+                    //append the string
+                    search_array_[row][count]=buildingString;
                     count++;
                     continue;
                 }
-                else
+                //we've entered an escape. wipe the current string and continue.
+                else {
+                    buildingString="";
                     continue;
+                }
+            default:
+                //If not in an escape, append the character after validity checking
+                if (inEscape==false)
+                {
+                    checkCountValid(count, row, expectedLength);
+                    string singleChar;
+                    singleChar+=line[i];
+                    checkIfIpa(count, row, singleChar);
+                    
+                    //append the character
+                    search_array_[row][count]+=line[i];
+                    count++;
+                    continue;
+                }
+                //We are in an escape. Append the current character to the building string and move on.
+                else {
+                    buildingString+=line[i];
+                    continue;
+                }
         }
     }
     
-    return count;
+    //We've completed looping a string, completing a line. Final correctness checks:
+    //An escape left unclosed
+    if (inEscape) {
+        cout << "An escape in line " << row << " was not terminated";
+        exit(4);
+    }
+    
+    //We have the expected number of IPA characters, or if no number is set yet, we make this the expected number
+    if (expectedLength == -1)
+        expectedLength = count;
+    else if (expectedLength < count) {
+        cout << "Line " << row << " is " << (expectedLength-count) << " characters short.";
+        exit(4);
+    }
 }
+
+
+//Helper function:
+
+//if maxNum = -1, return.
+//Otherwise, enforces max line width to prevent array index errors.
+
+void WordSearch::checkCountValid(int currentCount, int row, int maxNum) {
+    if (maxNum==-1)
+        return;
+    //equal to or greater than because c
+    if (currentCount>=maxNum)
+    {
+        cout << "Too many characters in row " << row;
+        exit(4);
+    }
+}
+
+//returns if a string is a valid IPA character
+void WordSearch::checkIfIpa(int currentCount, int row, string input) {
+    unordered_set <string>::const_iterator ipaChar;
+    ipaChar=IPA_characters_.find(input);
+    if (ipaChar==IPA_characters_.end()){
+        cout << "invalid character in row " << row << " at index " << currentCount;
+        exit(4);
+    }
+}
+
+
+
 
 void WordSearch::buildIPACharacterList() {
 //list of all valid IPA Characters. If yours is missing, add it.

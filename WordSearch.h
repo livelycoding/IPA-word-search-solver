@@ -21,10 +21,13 @@ public:
     void searchForWords();
     int generateWordSearch();
 private:
-    int getLineWidth(std::string line);
+    void handleLine(std::string line, int row, int& expectedLength);
     void removeTopLine();
     void buildIPACharacterList();
     void buildIPAToSoundsList();
+    void moveCharsToSearch();
+    void checkCountValid(int currentCount, int row, int maxNum);
+    void checkIfIpa(int currentCount, int row, std::string input);
     
     int n_rows_;
     int n_columns_;
